@@ -278,5 +278,10 @@ void calcThresholds() {
     Serial.println();
     
     delay(1000);
-    digitalWrite(laserPin, HIGH);
+    
+    for(int i = 0; i < 8; i++) {
+        while(valueOn[i] > valueOff[i] - 10 && valueOn[i] < valueOff[i] + 10) {
+            valueOn[i] = 1023 - analogRead(15 - i);
+        }   
+    }
 }
