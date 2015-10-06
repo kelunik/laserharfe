@@ -54,12 +54,12 @@ void setup() {
     wave.play();
 
     calcThresholds();
-    
+
     debug("Licht-Durchschnitt wurde bestimmt.");
 
     digitalWrite(laserPin, HIGH);
     debug("Setup abgeschlossen.");
-    
+
     for(int i = 0; i < 30; i++)
         trackValues[i] = -1;
 
@@ -76,43 +76,40 @@ void loop() {
 
     for(int i = 0; i < 8; i++) {
         value[i] = 1023 - analogRead(15 - i);
-        //Serial.print(value[i], DEC);
-        //Serial.print("\t");
     }
-    //Serial.println();
-    
+
     float maximum = -1;
     int maxLaser = -1;
 
     for(int i = 0; i < 8; i++) {
         int currDiff = valueOn[i] - value[i]; // 800 - 600
         int maxDiff = valueOn[i] - valueOff[i]; // 1000 - 600
-        
+
         if(maxDiff == 0) {
             maxDiff = 1;
         }
-        
+
         currDiff = min(currDiff, maxDiff);
-        
+
         float val = (float) currDiff / (float) maxDiff;
-        
+
         if(i < 3) {
-        Serial.print(val, DEC);
-        Serial.print("\t");
-        
-        Serial.print(currDiff, DEC);
-        Serial.print("\t");
-        
-        Serial.print(maxDiff, DEC);
-        Serial.print("\t");
+            Serial.print(val, DEC);
+            Serial.print("\t");
+
+            Serial.print(currDiff, DEC);
+            Serial.print("\t");
+
+            Serial.print(maxDiff, DEC);
+            Serial.print("\t");
         }
-        
+
         if(val > maximum || maximum < 0) {
             maximum = val;
-            maxLaser = i;  
+            maxLaser = i;
         }
     }
-    
+
     Serial.println();
 
     if(maxLaser == currentPlaying) {
@@ -123,7 +120,7 @@ void loop() {
         } else {
             if(wave.isplaying)
                 wave.stop();
-            
+
             newSound = currentPlaying;
             currentPlaying = -1;
         }
@@ -137,7 +134,7 @@ void loop() {
     } else {
         if(wave.isplaying)
            wave.stop();
-           
+
         newSound = currentPlaying;
         currentPlaying = -1;
     }
@@ -148,20 +145,19 @@ void loop() {
 
         trackValues[0] = newSound;
     }
-    
+
     checkTrack(trackDucklings, 27, "entn.wav");
     checkTrack(trackSaufn,     9,  "saufn.wav");
     checkTrack(trackDead,      7,  "dead.wav");
     checkTrack(trackCredits,   15, "credits.wav");
-    
+
     for(int j = 0; j < sizeof(trackTeacher); j++) {
         if(trackTeacher[j] != trackValues[8 - j])
             break;
 
         if(j == 8) {
             sample = 3;
-            //trackActivated = millis();
-            
+
             for(int i = 0; i < sizeof(trackValues); i++)
                 trackValues[i] = -1;
         }
@@ -221,12 +217,12 @@ char* getWaveName(int i) {
 void playFile(char *str, boolean blocking) {
     if(!file.open(root, str))
         error("Datei konnte nicht geoffnet werden!");
-    
+
     if(!wave.create(file))
         error("Datei kann nicht abgespielt werden!");
 
     wave.play();
-    
+
     if(blocking)
         while(wave.isplaying);
 }
@@ -235,7 +231,7 @@ void playFile(char *str, boolean blocking) {
 // CHECK SPECIALS
 ///////////////////////////////////////////////////////////////
 
-void checkTrack(int *in, int sizeOf, char *str) {    
+void checkTrack(int *in, int sizeOf, char *str) {
     for(int j = 0; j < sizeOf; j++) {
         if(in[j] != trackValues[sizeOf - 1 - j])
             break;
@@ -256,32 +252,32 @@ void checkTrack(int *in, int sizeOf, char *str) {
 void calcThresholds() {
     digitalWrite(laserPin, LOW);
     delay(1000);
-    
+
     for(int i = 0; i < 8; i++) {
         valueOff[i] = 1023 - analogRead(15 - i);
         Serial.print(valueOff[i], DEC);
         Serial.print("\t");
     }
-    
+
     Serial.println();
-    
+
     delay(1000);
     digitalWrite(laserPin, HIGH);
     delay(1000);
-    
+
     for(int i = 0; i < 8; i++) {
         valueOn[i] = 1023 - analogRead(15 - i);
         Serial.print(valueOn[i], DEC);
         Serial.print("\t");
     }
-    
+
     Serial.println();
-    
+
     delay(1000);
-    
+
     for(int i = 0; i < 8; i++) {
         while(valueOn[i] > valueOff[i] - 10 && valueOn[i] < valueOff[i] + 10) {
             valueOn[i] = 1023 - analogRead(15 - i);
-        }   
+        }
     }
 }
